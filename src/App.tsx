@@ -4,15 +4,21 @@ import amplifyConfig from "./amplifyconfiguration.json";
 import { listTodos as listTodo } from "./graphql/queries";
 import { generateClient } from "aws-amplify/api";
 import { createTodo } from "./graphql/mutations";
+import "@aws-amplify/ui-react/styles.css";
+import {
+  Button,
+  Heading,
+  WithAuthenticatorProps,
+  withAuthenticator,
+} from "@aws-amplify/ui-react";
 
 Amplify.configure(amplifyConfig);
 const client = generateClient();
 const initialState = { name: "", description: "" };
 
-function App() {
+function App({ signOut, user: _ }: WithAuthenticatorProps) {
   const [formState, setFormState] = useState(initialState);
   const [todos, setTodo] = useState<(typeof initialState)[]>([]);
-  const [count, setCount] = useState(0);
 
   function setInput(key: string, value: string) {
     setFormState({ ...formState, [key]: value });
@@ -23,7 +29,7 @@ function App() {
       const todoData = await client.graphql({
         query: listTodo,
       });
-      const todos = todoData.data.listTodos.items;
+      const todos = todoData.data.listTodos.items as (typeof initialState)[];
       setTodo(todos);
       console.log(todos);
     } catch (error) {
@@ -53,31 +59,39 @@ function App() {
   }, []);
 
   return (
-    <div className="w-screen h-screen bg-blue-950 justify-center items-center flex flex-col gap-4">
-      <div className="grid gap-4">
-        <h2 className="text-white text-5xl font-bold">Amplify todo list</h2>
-        {todos.map((i) => (
-          <div className="text-white font-medium" key={i.name}>
-            <p>{i.name}</p>
-            <p>{i.description}</p>
-          </div>
-        ))}
-        {["name", "description"].map((i) => (
-          <input
-            onChange={(event) => {
-              setInput(i, event.currentTarget.value);
-            }}
-            key={i}
-            placeholder={i}
-            className="text-white w-full bg-transparent rounded-md p-2 outline-none border-2 border-white"
-            type="text"
-          />
-        ))}
+    <div>
+      <Heading level={1}>HellO</Heading>
+      <Button onClick={signOut}>Sign out</Button>
+      <div className="w-screen h-screen bg-blue-950 justify-center items-center flex flex-col gap-4">
+        <div className="grid gap-4">
+          <h2 className="text-white text-5xl font-bold">Amplify todo list</h2>
+          {todos.map((i) => (
+            <div className="text-white font-medium" key={i.name}>
+              <p>{i.name}</p>
+              <p>{i.description}</p>
+            </div>
+          ))}
+          {["name", "description"].map((i) => (
+            <input
+              onChange={(event) => {
+                setInput(i, event.currentTarget.value);
+              }}
+              key={i}
+              placeholder={i}
+              className="text-white w-full bg-transparent rounded-md p-2 outline-none border-2 border-white"
+              type="text"
+            />
+          ))}
 
-        <button onClick={addTodo}>Add </button>
+          <button onClick={addTodo}>Add </button>
+        </div>
+        H B
       </div>
     </div>
   );
 }
 
-export default App;
+export default withAuthenticator(App, {
+  loginMechanisms: ["username"],
+  signUpAttributes: ["email"],
+});

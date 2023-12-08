@@ -14,6 +14,15 @@
     "categories": {
       "api": {
         "awsamplifyreact": {}
+      },
+      "auth": {
+        "awsamplifyreacte0421af4": {}
+      },
+      "hosting": {
+        "amplifyhosting": {
+          "appId": "du5wbxzpgswro",
+          "type": "manual"
+        }
       }
     }
   }
